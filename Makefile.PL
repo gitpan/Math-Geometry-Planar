@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'		=> 'Math::Geometry::Planar',
     'VERSION_FROM'	=> 'Planar.pm', # finds $VERSION
-    'PREREQ_PM'		=> {GPC}, # e.g., Module::Name => 1.1
+    'PREREQ_PM'		=> {GPC=>'',Carp=>'',POSIX=>''}, # e.g., Module::Name => 1.1
     'LIBS'		=> [''], # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'INC'		=> '', # e.g., '-I/usr/include/other'

@@ -1,12 +1,16 @@
 Revision history for Perl extension MAth::Geometry::Planar.
 
-1.00  Fri Sep   6 14:36:09 2002
+1.00  Fri Sep  6 14:36:09 2002
 	- First relesaseon
 
-1.01  Fri Sep  27 12:40:17 2002
+1.01  Fri Sep 27 12:40:17 2002
 	- Changed Math::Geometry_2D to Math::Geometry::Planar
 
-1.02  Fri Sep  27 14:37:25 2002
+1.02  Fri Sep 27 14:37:25 2002
 	- Include the triangulation code (which was a separate
           .pl file) into the module code
 
+1.03  Mon Oct  1 09:30:15 2002
+	- Corrected some typos in POD
+        - Added some initialization statements to overcome
+          'Use of uninitialized value' warnings during tests

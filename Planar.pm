@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.02';
+$VERSION   = '1.03';
 $precision = 7;
 
 require Exporter;
@@ -41,7 +41,7 @@ Math::Geometry::Planar - Module with planar geometry functions
 
 =head4 Formats
 
-A point is a refenece to an array holding the x and y coordinates of the point.
+A point is a reference to an array holding the x and y coordinates of the point.
 
  $point = [$x_coord,$y_coord];
 
@@ -63,6 +63,8 @@ in mind that some functions (e.g. triangulation) require that the outer polygons
 are entered in counter clockwise order and the inner polygons (holes) in clock
 wise order.  The points, polygons, add_polygons methods will automatically set the
 right order of points.
+No points can be assigned to an object that already has polygons assigned to and
+vice versa.
 
  $contour = [$poly1,$poly2], ... ];
 
@@ -72,212 +74,217 @@ The available methods are:
 
 =head4 $polygon->points(arg);
 
- Returns the polygon points if no argument is entered
- If the argument is a refence to a points array, sets the points for a polygon object
+Returns the polygon points if no argument is entered.
+If the argument is a refence to a points array, sets the points for a polygon object.
 
 =head4 $contour->polygons(arg);
 
- Returns the contour polygons if no argument is entered
- If the argument is a refence to a polygons array, sets the polygons for a contour object
+Returns the contour polygons if no argument is entered.
+If the argument is a refence to a polygons array, sets the polygons for a contour object.
 
 =head4 $contour->num_polygons;
 
- Returns the total number of polygons in the contour.
+Returns the total number of polygons in the contour.
 
 =head4 $contour->add_polygons(arg);
 
- Adds a list of polygons to a contour object (if the contour object doesn't have any
- polygons yet, the very first polygon reference from the list is used as the outer
- shape.  Returns the total number of polygons in the contour.
+Adds a list of polygons to a contour object (if the contour object doesn't have any
+polygons yet, the very first polygon reference from the list is used as the outer
+shape).  Returns the total number of polygons in the contour.
 
 =head4 $contour->get_polygons(arg_1,arg_2, ... );
 
- Returns a list of polygons where each element of the list corresponds to the polygon
- at index arg_x - starting at 0.  If the index arg_x is out of range, the corresponding
- value in the result list wil be undefined.  If no argument is entered, a full list of
- all polygons will be returned. Please note that this method returns a list rather
- then a reference.
+Returns a list of polygons where each element of the list corresponds to the polygon
+at index arg_x - starting at 0.  If the index arg_x is out of range, the corresponding
+value in the result list wil be undefined.  If no argument is entered, a full list of
+all polygons will be returned. Please note that this method returns a list rather
+then a reference.
 
 =head4 $polygon->cleanup;
 
- Remove colinear points from the polygon/contour.
+Remove colinear points from the polygon/contour.
 
 =head4 $polygon->isconvex;
 
- Returns true if the polygon/contour is convex (a contour is considered to be convex if
- the outer shape is convex)
+Returns true if the polygon/contour is convex. A contour is considered to be convex if
+the outer shape is convex.
 
 =head4 $polygon->issimple;
 
- Returns true if the polygon/contour is simple (a contour is considered to be simple if
- all it's polygons are simple)
+Returns true if the polygon/contour is simple.  A contour is considered to be simple if
+all it's polygons are simple.
 
 =head4 $polygon->perimeter;
 
- Returns the perimeter of the polygon/contour (the perimeter of a contour is the perimeter
- of the outer shape)
+Returns the perimeter of the polygon/contour. The perimeter of a contour is the perimeter
+of the outer shape.
 
 =head4 $polygon->area;
 
- Returns the signed area of the polygon/contour (positive if the points are in counter
- clockwise order) (the area of a contour is the area of the outer shape minus the tota
- area the holes)
+Returns the signed area of the polygon/contour (positive if the points are in counter
+clockwise order). The area of a contour is the area of the outer shape minus the sum
+of the area area of the holes.
 
 =head4 $polygon->centroid;
 
- Returns the centroid of the polygon/contour
+Returns the centroid (center of gravity) of the polygon/contour.
 
 =head4 $polygon->isinside($point);
 
- Returns true if point is inside the polygon/contour (a point is inside a contour if
- it is inside the outer polygon and not inside a hole)
+Returns true if point is inside the polygon/contour (a point is inside a contour if
+it is inside the outer polygon and not inside a hole).
 
 =head4 $polygon->rotate($angle,$center);
 
- Returns polygon/contour rotated $angle (in radians) around $center
+Returns polygon/contour rotated $angle (in radians) around $center.
+If no center is entered, rotates around the origin.
 
 =head4 $polygon->move($dx,$dy);
 
- Returns polygon/contour moved $dx in x direction and $dy in y direction
+Returns polygon/contour moved $dx in x direction and $dy in y direction.
 
 =head4 $polygon->mirrorx($center);
 
- Returns polygon/contour mirrored in x direction
- with (vertical) axis of reflection through point $center
+Returns polygon/contour mirrored in x direction
+with (vertical) axis of reflection through point $center.
+If no center is entered, axis is Y-axis.
 
 =head4 $polygon->mirrory($center);
 
- Returns polygon/contour mirrored in y direction
- with (horizontal) axis of reflection through point $center
+Returns polygon/contour mirrored in y direction
+with (horizontal) axis of reflection through point $center.
+If no center is entered, axis is X-axis.
 
 =head4 $polygon->mirror($axos);
 
- Returns polygon mirrored/contour along axis $axis (= array with 2 points defining
- axis of reflection))
+Returns polygon mirrored/contour along axis $axis (= array with 2 points defining
+axis of reflection).
 
 =head4 $polygon->scale($csale,$center);
 
- Returns polygon/contour scaled by a factor $scale, center of scaling is $scale
+Returns polygon/contour scaled by a factor $scale, center of scaling is $scale.
+If no center is entered, center of scaling is the origin.
 
 =head4 $polygon->bbox;
 
- Returns the polygon's/contour's bounding box
+Returns the polygon's/contour's bounding box.
 
 =head4 $polygon->minrectangle;
 
- Returns the polygon's/contour's minimal (area) enclosing rectangle
+Returns the polygon's/contour's minimal (area) enclosing rectangle.
 
 =head4 $polygon->convexhull;
 
- Returns a polygon representing the convex hull of the polygon/contour
+Returns a polygon representing the convex hull of the polygon/contour.
 
 =head4 $polygon->convexhull2;
 
- Returns a polygon representing the convex hull of an arbitrary set of points
- (works also on a contour, however a contour is a set of polygons and polygons
-  are ordered sets of points so the method above will be faster)
+Returns a polygon representing the convex hull of an arbitrary set of points
+(works also on a contour, however a contour is a set of polygons and polygons
+are ordered sets of points so the method above will be faster)
 
 =head4 $polygon->triangulate;
 
- Triangulates a polygon/contour based on Raimund Seidel's algorithm:
- 'A simple and fast incremental randomized algorithm for computing trapezoidal
- decompositions and for triangulating polygons'
- Returns a reference to a list of triangles
+Triangulates a polygon/contour based on Raimund Seidel's algorithm:
+'A simple and fast incremental randomized algorithm for computing trapezoidal
+decompositions and for triangulating polygons'
+Returns a reference to a list of triangles
 
 =head4 $polygon->convert2gpc;
 
- Converts a polygon/contour to a gpc structure and returns the resulting gpc structure
+Converts a polygon/contour to a gpc structure and returns the resulting gpc structure
 
 =head1 EXPORTS
 
 =head4 SegmentLength[$p1,$p2];
 
- Returns the length of the segment (vector) p1p2
+Returns the length of the segment (vector) p1p2
 
 =head4 Determinant(x1,y1,x2,y2);
 
- Returns | x1 y1 | which is x1*y2 - y1*x2
-         | x2 y2 |
+Returns the determinant of the matrix with rows x1,y1 and x2,y2 which is x1*y2 - y1*x2
 
 =head4 DotProduct($p1,$p2,$p3,$p4);
 
- Returns the vector dot product of vectors p1p2 and p3p4
- or the dot product of p1p2 and p2p3 if $p4 is ommited from the argument list
+Returns the vector dot product of vectors p1p2 and p3p4
+or the dot product of p1p2 and p2p3 if $p4 is ommited from the argument list
 
 =head4 CrossProduct($p1,$p2,$p3);
 
- Returns the vector cross product of vectors p1p2 and p1p3
+Returns the vector cross product of vectors p1p2 and p1p3
 
 =head4 TriangleArea($p1,$p2,$p3);
 
- Returns the signed area of the triangle p1p2p3
+Returns the signed area of the triangle p1p2p3
 
 =head4 Colinear($p1,$p2,$p3);
 
- Returns true if p1,p2 and p3 are colinear
+Returns true if p1,p2 and p3 are colinear
 
 =head4 SegmentIntersection($p1,$p2,$p3,$p4);
 
- Returns false if segments don't intersect
- Returns the intersection point of segments p1p2 and p3p4
+Returns the intersection point of segments p1p2 and p3p4,
+false if segments don't intersect
 
 =head4 LineIntersection($p1,$p2,$p3,$p4);
 
- Returns false if lines don't intersect (parallel lines)
- Returns the intersection point of lines p1p2 and p3p4
+Returns the intersection point of lines p1p2 and p3p4,
+false if lines don't intersect (parallel lines)
 
 =head4 Perpendicular($p1,$p2,$p3,$p4);
 
- Returns true if lines (segments) p1p2 and p3p4 are perpendicular
+Returns true if lines (segments) p1p2 and p3p4 are perpendicular
 
 =head4 PerpendicularFoot($p1,$p2,$p3);
 
- Returns the perpendicular foot of p3 on line p1p2
+Returns the perpendicular foot of p3 on line p1p2
 
 =head4 DistanceToLine($p1,$p2,$p3);
 
- Returns the perpendicular dostance of p3 to line p1p2
+Returns the perpendicular distance of p3 to line p1p2
 
 =head4 DistanceToSegment($p1,$p2,$p3);
 
- Returns the perpendicular distance of p3 to segment p1p2
+Returns the distance of p3 to segment p1p2. Depending on the point's
+position, this is the distance to one of the endpoints or the
+perpendicular distance to the segment.
 
 =head4 Gpc2Polygons($gpc_contour);
 
- Comverts a gpc contour structure to an array of contours and returns the array
+Converts a gpc contour structure to an array of contours and returns the array
 
 =head4 GpcClip($operation,$gpc_contour_1,$gpc_contour_2);
 
  $operation is DIFFERENCE, INTERSECTION, XOR or UNION
  $gpc_polygon_1 is the source polygon
  $gpc_polygon_2 is the clip polygon
- Returns a gpc polygon structure which is the result of the gpc clipping operation
+
+Returns a gpc polygon structure which is the result of the gpc clipping operation
 
 =head4 CircleToPoly($i,$p1,$p2,$p3);
 
- Converts the circle through points p1p2p3 to a polygon with i segments
+Converts the circle through points p1p2p3 to a polygon with i segments
 
 =head4 CircleToPoly($i,$center,$p1);
 
- Converts the circle with center through points p1 to a polygon with i segments
+Converts the circle with center through point p1 to a polygon with i segments
 
 =head4 CircleToPoly($i,$center,$radius);
 
- Converts the circle with center and radius to a polygon with i segments
+Converts the circle with center and radius to a polygon with i segments
 
-=head4 ArcleToPoly($i,$p1,$p2,$p3);
+=head4 ArcToPoly($i,$p1,$p2,$p3);
 
- Converts the arc with begin point p1, intermediate point p2 and end point p3
- to a (non-closed !) polygon with i segments
+Converts the arc with begin point p1, intermediate point p2 and end point p3
+to a (non-closed !) polygon with i segments
 
-=head4 ArcleToPoly($i,$center,$p1,$p2,$direction);
+=head4 ArcToPoly($i,$center,$p1,$p2,$direction);
 
- Converts the arc with center, begin point p1 and end point p2 to a
- (non-closed !) polygon with i segments.  If direction is 0, the arc
- is traversed counter clockwise from p1 to p2, clockwise if direction is 1
+Converts the arc with center, begin point p1 and end point p2 to a
+(non-closed !) polygon with i segments.  If direction is 0, the arc
+is traversed counter clockwise from p1 to p2, clockwise if direction is 1
 
 =cut
-
 
 require 5.005;
 
@@ -647,8 +654,8 @@ sub points {
       # delete existing info
       $self->{points} = ();
       my $pointsref = shift;
-      # normalize (a single polygon has only an outer shape make
-      # -> the points order clockwise)
+      # normalize (a single polygon has only an outer shape
+      # -> make points order counter clockwise)
       if (PolygonArea($pointsref) > 0) {
         $self->{points} = $pointsref;
       } else {
@@ -2171,6 +2178,13 @@ sub _newtrap {
   $tr[$tr_idx]{lseg} = -1;
   $tr[$tr_idx]{rseg} = -1;
   $tr[$tr_idx]{state} = $ST_VALID;
+  # next statements added to prevent 'uninitialized' warnings
+  $tr[$tr_idx]{d0} = 0;
+  $tr[$tr_idx]{d1} = 0;
+  $tr[$tr_idx]{u0} = 0;
+  $tr[$tr_idx]{u1} = 0;
+  $tr[$tr_idx]{usave} = 0;
+  $tr[$tr_idx]{uside} = 0;
   return $tr_idx++;
 }
 
@@ -3238,6 +3252,7 @@ sub _get_vertex_positions {
 
   $angle = -4.0;
   for (my $i = 0; $i < 4; $i++) {
+    next if (! $vp0{vnext}[$i]); # prevents 'uninitialized' warnings
     if ($vp0{vnext}[$i] <= 0) {
       next;
     }
@@ -3252,16 +3267,16 @@ sub _get_vertex_positions {
   # Do similar actions for q
 
   $angle = -4.0;
-  for (my $i = 0; $i < 4; $i++)
-    {
-      if ($vp1{vnext}[$i] <= 0) {
-        next;
-      }
-      if (($temp = _get_angle($vp1{pt}, $vert[$vp1{vnext}[$i]]{pt}, $vp0{pt})) > $angle) {
-        $angle = $temp;
-        $tq = $i;
-      }
+  for (my $i = 0; $i < 4; $i++) {
+    next if (! $vp1{vnext}[$i]); # prevents 'uninitialized' warnings
+    if ($vp1{vnext}[$i] <= 0) {
+      next;
     }
+    if (($temp = _get_angle($vp1{pt}, $vert[$vp1{vnext}[$i]]{pt}, $vp0{pt})) > $angle) {
+      $angle = $temp;
+      $tq = $i;
+    }
+  }
 
   # $iq_ref = \$tq;
 
