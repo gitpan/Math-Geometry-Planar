@@ -57,3 +57,5 @@ Revision history for Perl extension MAth::Geometry::Planar.
         - Added ray intersection and all combinations of
           ray/line/segment intersection
 
+1.12  Fry Jun 15 11:07:00 2003
+	- Added tests for all intersections (ray/line/segment)

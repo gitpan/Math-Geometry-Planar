@@ -10,7 +10,7 @@
 use Test;
 use strict;
 
-BEGIN {plan tests => 69};
+BEGIN {plan tests => 77};
 
 eval {require Math::Geometry::Planar};
 ok ($@,'');
@@ -74,6 +74,34 @@ $pointsref = [[1,1],[2,2],[3,0],[4,2]];
 ok ($result[0] == 6 && $result[1] == 6);
 $pointsref = [[1,1],[5,2],[2,4],[6,5]];
 ok (! LineIntersection($pointsref));
+################################################################################
+# Ray intersection
+$pointsref = [[1,1],[5,3],[4,0],[2,4]];
+@result = @{RayIntersection($pointsref)};
+ok ($result[0] == 3 && $result[1] == 2);
+$pointsref = [[1,1],[5,3],[4,0],[8,1]];
+ok (! RayIntersection($pointsref));
+################################################################################
+# Ray-Line intersection
+$pointsref = [[-1,0],[1,1],[2,4],[0,8]];
+@result = @{RayLineIntersection($pointsref)};
+ok ($result[0] == 3 && $result[1] == 2);
+$pointsref = [[5,3],[9,5],[2,4],[0,8]];
+ok (! RayLineIntersection($pointsref));
+################################################################################
+# Segment-Line intersection
+$pointsref = [[5,3],[1,1],[2,4],[0,8]];
+@result = @{SegmentLineIntersection($pointsref)};
+ok ($result[0] == 3 && $result[1] == 2);
+$pointsref = [[-1,0],[1,1],[2,4],[0,8]];
+ok (! SegmentLineIntersection($pointsref));
+################################################################################
+# Segment-Ray intersection
+$pointsref = [[-2,2],[0,-2],[5,3],[1,1]];
+@result = @{SegmentRayIntersection($pointsref)};
+ok ($result[0] == -1 && $result[1] == 0);
+$pointsref = [[6,6],[8,2],[5,3],[1,1]];
+ok (! SegmentRayIntersection($pointsref));
 ################################################################################
 # Perpendicular Lines
 $pointsref = [[2,1],[7,2],[3,3.000001],[2,8]];

@@ -7,28 +7,38 @@
 
 package Math::Geometry::Planar;
 
-use vars qw($VERSION $precision);
-$VERSION   = '1.11';
-$precision = 7;
+$VERSION   = '1.12';
 
-require Exporter;
-@ISA='Exporter';
-@EXPORT = qw/SegmentLength Determinant DotProduct CrossProduct
-             TriangleArea Colinear
-             SegmentIntersection LineIntersection RayInterSection
-             SegmentLineIntersection RayLineIntersection
-             SegmentRayIntersection
-             Perpendicular PerpendicularFoot
-             DistanceToLine DistanceToSegment
-             Gpc2Polygons GpcClip
-             CircleToPoly ArcToPoly
-            /;
+use vars qw(
+            $VERSION
+            @ISA
+            @EXPORT
+            @EXPORT_OK
+            $precision
+           );
 
 use strict;
 use Math::Geometry::Planar::GPC;
 use Math::Geometry::Planar::Offset;
 use Carp;
 use POSIX;
+
+$precision = 7;
+
+require Exporter;
+@ISA       = qw(Exporter);
+@EXPORT    = qw(
+                SegmentLength Determinant DotProduct CrossProduct
+                TriangleArea Colinear
+                SegmentIntersection LineIntersection RayIntersection
+                SegmentLineIntersection RayLineIntersection
+                SegmentRayIntersection
+                Perpendicular PerpendicularFoot
+                DistanceToLine DistanceToSegment
+                Gpc2Polygons GpcClip
+                CircleToPoly ArcToPoly
+               );
+@EXPORT_OK = qw($precision);
 
 =pod
 
@@ -680,7 +690,7 @@ sub SegmentRayIntersection {
   if (abs($d) < $delta) {
     return 0; # parallel
   }
-  if (!(($n1/$d < 1) && ($n2/$d < 1) && ($n1/$d > 0))) {
+  if (!(($n1/$d < 1) && ($n1/$d > 0) && ($n2/$d > 0))) {
     return 0;
   }
   $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
