@@ -8,14 +8,16 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.10';
+$VERSION   = '1.11';
 $precision = 7;
 
 require Exporter;
 @ISA='Exporter';
 @EXPORT = qw/SegmentLength Determinant DotProduct CrossProduct
              TriangleArea Colinear
-             SegmentIntersection LineIntersection
+             SegmentIntersection LineIntersection RayInterSection
+             SegmentLineIntersection RayLineIntersection
+             SegmentRayIntersection
              Perpendicular PerpendicularFoot
              DistanceToLine DistanceToSegment
              Gpc2Polygons GpcClip
@@ -23,7 +25,8 @@ require Exporter;
             /;
 
 use strict;
-use Math::Geometry::GPC;
+use Math::Geometry::Planar::GPC;
+use Math::Geometry::Planar::Offset;
 use Carp;
 use POSIX;
 
@@ -188,6 +191,11 @@ Triangulates a polygon/contour based on Raimund Seidel's algorithm:
 decompositions and for triangulating polygons'
 Returns a list of polygons (= the triangles)
 
+=head4 $polygon->offset_polygon($distance);
+
+Returns reference to an array of polygons representing the original polygon
+offsetted by $distance
+
 =head4 $polygon->convert2gpc;
 
 Converts a polygon/contour to a gpc structure and returns the resulting gpc structure
@@ -228,6 +236,30 @@ false if segments don't intersect
 
 Returns the intersection point of lines p1p2 and p3p4,
 false if lines don't intersect (parallel lines)
+
+=head4 RayIntersection($p1,$p2,$p3,$p4);
+
+Returns the intersection point of rays p1p2 and p3p4,
+false if lines don't intersect (parallel rays)
+p1 (p3) is the startpoint of the ray and p2 (p4) is
+a point on the ray.
+
+=head4 RayLineIntersection($p1,$p2,$p3,$p4);
+
+Returns the intersection point of ray p1p2 and line p3p4,
+false if lines don't intersect (parallel rays)
+p1 is the startpoint of the ray and p2 is a point on the ray.
+
+=head4 SegmentLineIntersection($p1,$p2,$p3,$p4);
+
+Returns the intersection point of segment p1p2 and line p3p4,
+false if lines don't intersect (parallel rays)
+
+=head4 SegmentRayIntersection($p1,$p2,$p3,$p4);
+
+Returns the intersection point of segment p1p2 and ray p3p4,
+false if lines don't intersect (parallel rays)
+p3 is the startpoint of the ray and p4 is a point on the ray.
 
 =head4 Perpendicular($p1,$p2,$p3,$p4);
 
@@ -475,7 +507,7 @@ sub SegmentIntersection {
   my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
   my $n2 = Determinant(($p2[0]-$p1[0]),($p3[0]-$p1[0]),($p2[1]-$p1[1]),($p3[1]-$p1[1]));
   my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
-  if ($d == 0) {
+  if (abs($d) < $delta) {
     return 0; # parallel
   }
   if (!(($n1/$d < 1) && ($n2/$d < 1) &&
@@ -506,10 +538,150 @@ sub LineIntersection {
   my @p4 = @{$points[3]};
   my @p5;
   my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
+  my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
+  if (abs($d) < $delta) {
+    return 0; # parallel
+  }
+  $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
+  $p5[1] = $p1[1] + $n1/$d * ($p2[1] - $p1[1]);
+  return \@p5; # intersection point
+}
+################################################################################
+#
+# Intersection point of 2 rays
+# 
+# args : reference to an array with 4 points p1,p2,p3,p4
+#
+#  Parametric representation of a ray
+#    if p1 (x1,y1) is the startpoint of the ray 
+#    and p2 (x2,y2) are is a point on the ray then
+#       P1 is the vector from (0,0) to (x1,y1)
+#       P2 is the vector from (0,0) to (x2,y2)
+#    then the parametric representation of the ray is P = P1 + k (P2 - P1)
+#    where k is an arbitrary scalar constant.
+#    for a point on the line segement (p1,p2)  value of k is positive
+#
+#  (A ray is often represented as a single point and a direction #  'theta'
+#   in this case, one can easily define a second point as
+#   x2 = x1 + cos(theta) and y2 = y2 + sin(theta)  )
+#
+#  for the 2 rays we get
+#      Pa = P1 + k (P2 - P1)
+#      Pb = P3 + l (P4 - P3)
+#
+# Touching rays are considered as not intersectin
+#
+sub RayIntersection {
+  my $pointsref = $_[0];
+  my @points = @$pointsref;
+  if (@points != 4) {
+    carp("RayIntersection needs 4 points");
+    return;
+  }
+  my @p1 = @{$points[0]}; # p1,p2 = segment 1 (startpoint is p1)
+  my @p2 = @{$points[1]};
+  my @p3 = @{$points[2]}; # p3,p4 = segment 2 (startpoint is p3)
+  my @p4 = @{$points[3]};
+  my @p5;
+  my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
   my $n2 = Determinant(($p2[0]-$p1[0]),($p3[0]-$p1[0]),($p2[1]-$p1[1]),($p3[1]-$p1[1]));
   my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
-  if ($d == 0) {
+  if (abs($d) < $delta) {
     return 0; # parallel
+  }
+  if (!( ($n1/$d > 0) && ($n2/$d > 0))) {
+    return 0;
+  }
+  $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
+  $p5[1] = $p1[1] + $n1/$d * ($p2[1] - $p1[1]);
+  return \@p5; # intersection point
+}
+################################################################################
+#
+# Intersection point of a segment and a line
+# 
+# args : reference to an array with 4 points p1,p2,p3,p4
+#
+sub SegmentLineIntersection {
+  my $pointsref = $_[0];
+  my @points = @$pointsref;
+  if (@points != 4) {
+    carp("SegmentLineIntersection needs 4 points");
+    return;
+  }
+  my @p1 = @{$points[0]}; # p1,p2 = segment
+  my @p2 = @{$points[1]};
+  my @p3 = @{$points[2]}; # p3,p4 = line
+  my @p4 = @{$points[3]};
+  my @p5;
+  my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
+  my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
+  if (abs($d) < $delta) {
+    return 0; # parallel
+  }
+  if (!(($n1/$d < 1) && ($n1/$d > 0))) {
+    return 0;
+  }
+  $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
+  $p5[1] = $p1[1] + $n1/$d * ($p2[1] - $p1[1]);
+  return \@p5; # intersection point
+}
+################################################################################
+#
+# Intersection point of a ray and a line
+# 
+# args : reference to an array with 4 points p1,p2,p3,p4
+#
+sub RayLineIntersection {
+  my $pointsref = $_[0];
+  my @points = @$pointsref;
+  if (@points != 4) {
+    carp("RayLineIntersection needs 4 points");
+    return;
+  }
+  my @p1 = @{$points[0]}; # p1,p2 = ray (startpoint p1)
+  my @p2 = @{$points[1]};
+  my @p3 = @{$points[2]}; # p3,p4 = line
+  my @p4 = @{$points[3]};
+  my @p5;
+  my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
+  my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
+  if (abs($d) < $delta) {
+    return 0; # parallel
+  }
+  if (!($n1/$d > 0)) {
+    return 0;
+  }
+  $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
+  $p5[1] = $p1[1] + $n1/$d * ($p2[1] - $p1[1]);
+  return \@p5; # intersection point
+}
+################################################################################
+#
+# Intersection point of a segment and a ray
+# 
+# args : reference to an array with 4 points p1,p2,p3,p4
+#
+sub SegmentRayIntersection {
+  my $pointsref = $_[0];
+  my @points = @$pointsref;
+  if (@points != 4) {
+    carp("SegmentRayIntersection needs 4 points");
+    return;
+  }
+  my @p1 = @{$points[0]}; # p1,p2 = segment
+  my @p2 = @{$points[1]};
+  my @p3 = @{$points[2]}; # p3,p4 = ray (startpoint p3)
+  my @p4 = @{$points[3]};
+  my @p5;
+  my $n1 = Determinant(($p3[0]-$p1[0]),($p3[0]-$p4[0]),($p3[1]-$p1[1]),($p3[1]-$p4[1]));
+  my $n2 = Determinant(($p2[0]-$p1[0]),($p3[0]-$p1[0]),($p2[1]-$p1[1]),($p3[1]-$p1[1]));
+  my $d  = Determinant(($p2[0]-$p1[0]),($p3[0]-$p4[0]),($p2[1]-$p1[1]),($p3[1]-$p4[1]));
+  if (abs($d) < $delta) {
+    return 0; # parallel
+  }
+  if (!(($n1/$d < 1) && ($n2/$d < 1) && ($n1/$d > 0))) {
+    return 0;
   }
   $p5[0] = $p1[0] + $n1/$d * ($p2[0] - $p1[0]);
   $p5[1] = $p1[1] + $n1/$d * ($p2[1] - $p1[1]);
@@ -1673,6 +1845,21 @@ sub convexhull2 {
 }
 ################################################################################
 #
+# Offset polygons
+#
+sub offset_polygon {
+  my ($self,$offset,$canvas) = @_;
+  my $offset_polygons;
+  my $pointsref = $self->points;
+  if ($pointsref) {
+    return [OffsetPolygon($pointsref,$offset,$canvas)];
+  } else {
+    carp("Can't offset contours - only polygons");
+    return;
+  }
+}
+################################################################################
+#
 # Sorting function to surt points first by X coordinate, then by Y coordinate
 #
 sub ByXY {
@@ -1705,33 +1892,33 @@ sub convert2gpc {
       return;
     }
   }
-  my $contour = Math::Geometry::GPC::new_gpc_polygon();
-  Math::Geometry::GPC::gpc_polygon_num_contours_set($contour,scalar(@polygons));
+  my $contour = Math::Geometry::Planar::GPC::new_gpc_polygon();
+  Math::Geometry::Planar::GPC::gpc_polygon_num_contours_set($contour,scalar(@polygons));
   # array for hole pointers
-  my $hole_array = Math::Geometry::GPC::int_array(scalar(@polygons));
-  Math::Geometry::GPC::gpc_polygon_hole_set($contour,$hole_array);
-  my $vlist = Math::Geometry::GPC::new_gpc_vertex_list();
+  my $hole_array = Math::Geometry::Planar::GPC::int_array(scalar(@polygons));
+  Math::Geometry::Planar::GPC::gpc_polygon_hole_set($contour,$hole_array);
+  my $vlist = Math::Geometry::Planar::GPC::new_gpc_vertex_list();
   for (my $i = 0; $i < @polygons; $i++) {
     if ($i == 0) {
-      Math::Geometry::GPC::int_set($hole_array,$i,0);
+      Math::Geometry::Planar::GPC::int_set($hole_array,$i,0);
     } else {
-      Math::Geometry::GPC::int_set($hole_array,$i,1);
+      Math::Geometry::Planar::GPC::int_set($hole_array,$i,1);
     }
     my @points = @{$polygons[$i]};
     my @gpc_vertexlist;
     foreach my $vertex (@points) {
-      my $v = Math::Geometry::GPC::new_gpc_vertex();
-      Math::Geometry::GPC::gpc_vertex_x_set($v,$$vertex[0]);
-      Math::Geometry::GPC::gpc_vertex_y_set($v,$$vertex[1]);
+      my $v = Math::Geometry::Planar::GPC::new_gpc_vertex();
+      Math::Geometry::Planar::GPC::gpc_vertex_x_set($v,$$vertex[0]);
+      Math::Geometry::Planar::GPC::gpc_vertex_y_set($v,$$vertex[1]);
       push @gpc_vertexlist,$v;
     }
     my $va = create_gpc_vertex_array(@gpc_vertexlist);
-    my $vl = Math::Geometry::GPC::new_gpc_vertex_list();
-    Math::Geometry::GPC::gpc_vertex_list_vertex_set($vl,$va);
-    Math::Geometry::GPC::gpc_vertex_list_num_vertices_set($vl,scalar(@points));
-    Math::Geometry::GPC::gpc_vertex_list_set($vlist,$i,$vl);
+    my $vl = Math::Geometry::Planar::GPC::new_gpc_vertex_list();
+    Math::Geometry::Planar::GPC::gpc_vertex_list_vertex_set($vl,$va);
+    Math::Geometry::Planar::GPC::gpc_vertex_list_num_vertices_set($vl,scalar(@points));
+    Math::Geometry::Planar::GPC::gpc_vertex_list_set($vlist,$i,$vl);
   }
-  Math::Geometry::GPC::gpc_polygon_contour_set($contour,$vlist);
+  Math::Geometry::Planar::GPC::gpc_polygon_contour_set($contour,$vlist);
   return $contour;
 }
 ################################################################################
@@ -1744,22 +1931,22 @@ sub Gpc2Polygons {
   my @result; # array with contours
   my @inner;  # array holding the inner polygons
   my @outer;  # array holding the outer polygons
-  my $num_contours = Math::Geometry::GPC::gpc_polygon_num_contours_get($gpc);
-  my $contour      = Math::Geometry::GPC::gpc_polygon_contour_get($gpc);
-  my $hole_array   = Math::Geometry::GPC::gpc_polygon_hole_get($gpc);
+  my $num_contours = Math::Geometry::Planar::GPC::gpc_polygon_num_contours_get($gpc);
+  my $contour      = Math::Geometry::Planar::GPC::gpc_polygon_contour_get($gpc);
+  my $hole_array   = Math::Geometry::Planar::GPC::gpc_polygon_hole_get($gpc);
   # for each shape of the gpc object
   for (my $i = 0 ; $i < $num_contours ; $i++) {
     my @polygon;
     # get the hole flag
-    my $hole = Math::Geometry::GPC::int_get($hole_array,$i);
+    my $hole = Math::Geometry::Planar::GPC::int_get($hole_array,$i);
     # get the vertices
-    my $vl = Math::Geometry::GPC::gpc_vertex_list_get($contour,$i);
-    my $num_vertices = Math::Geometry::GPC::gpc_vertex_list_num_vertices_get($vl);
-    my $va = Math::Geometry::GPC::gpc_vertex_list_vertex_get($vl);
+    my $vl = Math::Geometry::Planar::GPC::gpc_vertex_list_get($contour,$i);
+    my $num_vertices = Math::Geometry::Planar::GPC::gpc_vertex_list_num_vertices_get($vl);
+    my $va = Math::Geometry::Planar::GPC::gpc_vertex_list_vertex_get($vl);
     for (my $j = 0 ; $j < $num_vertices ; $j++) {
-      my $v = Math::Geometry::GPC::gpc_vertex_get($va,$j);
-      my $x = Math::Geometry::GPC::gpc_vertex_x_get($v);
-      my $y = Math::Geometry::GPC::gpc_vertex_y_get($v);
+      my $v = Math::Geometry::Planar::GPC::gpc_vertex_get($va,$j);
+      my $x = Math::Geometry::Planar::GPC::gpc_vertex_x_get($v);
+      my $y = Math::Geometry::Planar::GPC::gpc_vertex_y_get($v);
       push @polygon,[$x,$y];
     }
     # create lists of inner and outer shapes
@@ -1802,22 +1989,22 @@ sub Gpc2Polygons {
 #
 sub GpcClip {
   my ($op,$gpc_poly_1,$gpc_poly_2) = @_;
-  my $result = Math::Geometry::GPC::new_gpc_polygon();
+  my $result = Math::Geometry::Planar::GPC::new_gpc_polygon();
   SWITCH: {
     ($op eq "DIFFERENCE") && do {
-      Math::Geometry::GPC::gpc_polygon_clip(0,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::Planar::GPC::gpc_polygon_clip(0,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "INTERSECTION") && do {
-      Math::Geometry::GPC::gpc_polygon_clip(1,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::Planar::GPC::gpc_polygon_clip(1,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "XOR") && do {
-      Math::Geometry::GPC::gpc_polygon_clip(2,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::Planar::GPC::gpc_polygon_clip(2,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "UNION") && do {
-      Math::Geometry::GPC::gpc_polygon_clip(3,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::Planar::GPC::gpc_polygon_clip(3,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     return;
@@ -1829,10 +2016,10 @@ sub GpcClip {
 #
 sub create_gpc_vertex_array {
   my $len = scalar(@_);
-  my $va = Math::Geometry::GPC::gpc_vertex_array($len);
+  my $va = Math::Geometry::Planar::GPC::gpc_vertex_array($len);
   for (my $i=0; $i<$len; $i++) {
     my $val = shift;
-    Math::Geometry::GPC::gpc_vertex_set($va,$i,$val);
+    Math::Geometry::Planar::GPC::gpc_vertex_set($va,$i,$val);
   }
   return $va;
 }

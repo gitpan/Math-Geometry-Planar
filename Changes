@@ -50,3 +50,10 @@ Revision history for Perl extension MAth::Geometry::Planar.
 	- Optimized PolygonArea for better performance
           as suggested by C. David Tallman (thanks David)
 
+1.11  Mon Jun 15 10:17:00 2003
+	- Added Eric Wilhelm's polygon offset module
+        - Moved GPC module under Planar
+        - Added precision to parallel and intersection routines
+        - Added ray intersection and all combinations of
+          ray/line/segment intersection
+
