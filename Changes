@@ -34,3 +34,14 @@ Revision history for Perl extension MAth::Geometry::Planar.
 1.08  Mon Oct  7 14:12:02 2002
 	- another attempt to fix linux 2.4.16-6mdksmp i386-linux test
           (nothing is - imho - wrong though ...)
+
+1.09  Mon Oct 14 11:05:34 2002
+	- polygons operations now return polygon (contour) objects
+          and leave the original object unaltered
+          Method triangulate returns a list of polygon (contour)
+          objects.
+        - fixed a few bugs
+            - point missing in result convexhull2 (except for some
+              special cases like the one in the tests ...)
+            - typo in move made it work only for polygon objects and
+              not for contour objects

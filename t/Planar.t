@@ -160,8 +160,7 @@ ok (! $contour->isinside([3,2]));
 ################################################################################
 # rotate polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-$poly->rotate(atan2(1,1)*2,[2,2]);
-@points = @{$poly->points};
+@points = @{$poly->rotate(atan2(1,1)*2,[2,2])->points};
 ok (abs (${$points[3]}[0] - 3) < 1e-10 &&
     abs (${$points[3]}[1] - 1) < 1e-10 &&
     abs (${$points[2]}[0] - 0) < 1e-10 &&
@@ -173,7 +172,7 @@ ok (abs (${$points[3]}[0] - 3) < 1e-10 &&
 ################################################################################
 # move polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-@points = @{$poly->move(1,2)};
+@points = @{$poly->move(1,2)->points};
 ok (${$points[3]}[0] == 2 &&
     ${$points[3]}[1] == 3 &&
     ${$points[2]}[0] == 4 &&
@@ -185,8 +184,7 @@ ok (${$points[3]}[0] == 2 &&
 ################################################################################
 # mirrorx polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-$poly->mirrorx([3,2]);
-@points = @{$poly->points};
+@points = @{$poly->mirrorx([3,2])->points};
 ok (${$points[0]}[0] == 5 &&
     ${$points[0]}[1] == 1 &&
     ${$points[1]}[0] == 3 &&
@@ -198,8 +196,7 @@ ok (${$points[0]}[0] == 5 &&
 ################################################################################
 # mirrory polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-$poly->mirrory([3,2]);
-@points = @{$poly->points};
+@points = @{$poly->mirrory([3,2])->points};
 ok (${$points[0]}[0] == 1 &&
     ${$points[0]}[1] == 3 &&
     ${$points[1]}[0] == 3 &&
@@ -211,8 +208,7 @@ ok (${$points[0]}[0] == 1 &&
 ################################################################################
 # mirror polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-$poly->mirror([[2,2],[3,3]]);
-@points = @{$poly->points};
+@points = @{$poly->mirror([[2,2],[3,3]])->points};
 ok (${$points[0]}[0] == 1 &&
     ${$points[0]}[1] == 1 &&
     ${$points[1]}[0] == 4 &&
@@ -224,7 +220,7 @@ ok (${$points[0]}[0] == 1 &&
 ################################################################################
 # scale polygon
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
-@points = @{$poly->scale(2,[2,2])};
+@points = @{$poly->scale(2,[2,2])->points};
 ok (${$points[3]}[0] == 0 &&
     ${$points[3]}[1] == 0 &&
     ${$points[2]}[0] == 4 &&
@@ -236,39 +232,39 @@ ok (${$points[3]}[0] == 0 &&
 ################################################################################
 # bounding boxes - orthogonal and minimum area
 $contour->polygons([[[1,1],[5,1],[5,3],[3,4],[1,3]]]);
-@points = @{$contour->bbox};
-ok (${$points[0]}[0] == 1 &&
-    ${$points[0]}[1] == 1 &&
-    ${$points[1]}[0] == 1 &&
-    ${$points[1]}[1] == 4 &&
-    ${$points[2]}[0] == 5 &&
+@points = @{$contour->bbox->points};
+ok (${$points[3]}[0] == 1 &&
+    ${$points[3]}[1] == 1 &&
+    ${$points[2]}[0] == 1 &&
     ${$points[2]}[1] == 4 &&
-    ${$points[3]}[0] == 5 &&
-    ${$points[3]}[1] == 1 );
-@points = @{$contour->minrectangle};
-ok (${$points[0]}[0] == 1 &&
-    ${$points[0]}[1] == 1 &&
-    ${$points[1]}[0] == 1 &&
+    ${$points[1]}[0] == 5 &&
     ${$points[1]}[1] == 4 &&
-    ${$points[2]}[0] == 5 &&
+    ${$points[0]}[0] == 5 &&
+    ${$points[0]}[1] == 1 );
+@points = @{$contour->minrectangle->points};
+ok (${$points[3]}[0] == 1 &&
+    ${$points[3]}[1] == 1 &&
+    ${$points[2]}[0] == 1 &&
     ${$points[2]}[1] == 4 &&
-    ${$points[3]}[0] == 5 &&
-    ${$points[3]}[1] == 1 );
+    ${$points[1]}[0] == 5 &&
+    ${$points[1]}[1] == 4 &&
+    ${$points[0]}[0] == 5 &&
+    ${$points[0]}[1] == 1 );
 $contour->polygons([[[2,4],[3,3],[5,3],[9,7],[9,11],[7,11],[2,6]]]);
-@points = @{$contour->minrectangle};
-ok (${$points[0]}[0] == 4 &&
-    ${$points[0]}[1] == 2 &&
-    ${$points[1]}[0] == 1 &&
-    ${$points[1]}[1] == 5 &&
-    ${$points[2]}[0] == 8 &&
-    ${$points[2]}[1] == 12 &&
-    ${$points[3]}[0] == 11 &&
-    ${$points[3]}[1] == 9 );
+@points = @{$contour->minrectangle->points};
+ok (${$points[3]}[0] == 4 &&
+    ${$points[3]}[1] == 2 &&
+    ${$points[2]}[0] == 1 &&
+    ${$points[2]}[1] == 5 &&
+    ${$points[1]}[0] == 8 &&
+    ${$points[1]}[1] == 12 &&
+    ${$points[0]}[0] == 11 &&
+    ${$points[0]}[1] == 9 );
 ################################################################################
 # polygon convex hull
-$contour->polygons([[[1,1],[2,-1],[0,-4],[4,-2],[6,-3],
-               [8,3],[4,1]]]);
-@points = @{$contour->convexhull};
+$poly->points([[1,1],[2,-1],[0,-4],[4,-2],[6,-3],
+               [8,3],[4,1]]);
+@points = @{$poly->convexhull->points};
 ok (${$points[0]}[0] == 8 &&
     ${$points[0]}[1] == 3 &&
     ${$points[1]}[0] == 1 &&
@@ -281,7 +277,7 @@ ok (${$points[0]}[0] == 8 &&
 # polygon convex hull
 $poly->points([[1,1],[2,-1],[0,-4],[4,-2],[6,-3],
                [8,3],[4,1],[5,-1],[0,-3],[1,-4]]);
-@points = @{$poly->convexhull2};
+@points = @{$poly->convexhull2->points};
 ok (${$points[0]}[0] == 0 &&
     ${$points[0]}[1] == -4 &&
     ${$points[1]}[0] == 1 &&
@@ -414,9 +410,8 @@ ok (${$points[5]}[0] == 3 &&
 $poly1 = [[1,0],[5,0],[5,5],[1,5]];
 $poly2 = [[3,1],[2,2],[3,3],[4,2]];
 $contour->polygons([$poly1,$poly2]);
-my $poly_ref = $contour->triangulate;
-my @poly = @{$poly_ref};
-ok (@poly == 8);
+@polygons = $contour->triangulate;
+ok (@polygons == 8);
 
 ################################################################################
 # GPC clip creating a contour with multiple outer shapes
@@ -497,8 +492,7 @@ ok (${$points00[7]}[0] == 6 &&
 
 ################################################################################
 # convert circle defined by 3 points
-$poly = CircleToPoly(8,[2,2],[3,3],[4,2]);
-@points = @{$poly};
+@points = @{CircleToPoly(8,[2,2],[3,3],[4,2])->points};
 ok (
 abs (${$points[0]}[0] - 4) < 1e-07 &&
 abs (${$points[0]}[1] - 2) < 1e-07 &&
@@ -520,8 +514,7 @@ abs (${$points[7]}[1] - 1.29289321881345) < 1e-07
 
 ################################################################################
 # convert circle defined by point and center
-$poly = CircleToPoly(8,[3,2],[2,2]);
-@points = @{$poly};
+@points = @{CircleToPoly(8,[3,2],[2,2])->points};
 ok (
 abs (${$points[0]}[0] - 4) < 1e-07 &&
 abs (${$points[0]}[1] - 2) < 1e-07 &&
@@ -543,8 +536,7 @@ abs (${$points[7]}[1] - 1.29289321881345) < 1e-07
 
 ################################################################################
 # convert circle defined by radius and center
-$poly = CircleToPoly(8,[3,2],1);
-@points = @{$poly};
+@points = @{CircleToPoly(8,[3,2],1)->points};
 ok (
 abs (${$points[0]}[0] - 4) < 1e-07 &&
 abs (${$points[0]}[1] - 2) < 1e-07 &&

@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.08';
+$VERSION   = '1.09';
 $precision = 7;
 
 require Exporter;
@@ -186,7 +186,7 @@ are ordered sets of points so the method above will be faster)
 Triangulates a polygon/contour based on Raimund Seidel's algorithm:
 'A simple and fast incremental randomized algorithm for computing trapezoidal
 decompositions and for triangulating polygons'
-Returns a reference to a list of triangles
+Returns a list of polygons (= the triangles)
 
 =head4 $polygon->convert2gpc;
 
@@ -976,8 +976,7 @@ sub area {
 #
 sub centroid {
   my ($self) = @_;
-  my $trianglesref = $self->triangulate;
-  my @triangles = @{$trianglesref};
+  my @triangles = $self->triangulate;
 
   if (! @triangles) { # no result from triangulation
     carp("Nothing to calculate centroid for");
@@ -988,7 +987,7 @@ sub centroid {
   my $total_area;
   # triangulate
   foreach my $triangleref (@triangles) {
-    my @triangle = @{$triangleref};
+    my @triangle = @{$triangleref->points};
     my $area = TriangleArea([$triangle[0],$triangle[1],$triangle[2]]);
     # weighted centroid = area * centroid = area * sum / 3
     # we postpone division by 3 till we divide by total area to
@@ -1088,13 +1087,14 @@ sub RotatePolygon {
   }
   if ($pointsref) {
     my @points = @$pointsref;
+    my @result;
     for (my $i = 0 ; $i < @points ; $i++) {
       my $x = $xc + cos($angle)*($points[$i][0] - $xc) - sin($angle)*($points[$i][1] - $yc);
       my $y = $yc + sin($angle)*($points[$i][0] - $xc) + cos($angle)*($points[$i][1] - $yc);
-      $points[$i][0] = $x;
-      $points[$i][1] = $y;
+      $result[$i][0] = $x;
+      $result[$i][1] = $y;
     }
-    return [@points];
+    return [@result];
   }
 }
 ################################################################################
@@ -1103,17 +1103,18 @@ sub RotatePolygon {
 #
 sub rotate {
   my ($self,$angle,$center) = @_;
+  my $rotate =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(RotatePolygon($pointsref,$angle,$center));
+    $rotate->points(RotatePolygon($pointsref,$angle,$center));
   } else {
-    my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
+    my @polygonrefs = $rotate->get_polygons;
     my @result;
     foreach (@polygonrefs) {
-      push @{$self->{polygons}}, RotatePolygon($_,$angle,$center);
+      $rotate->add_polygons(RotatePolygon($_,$angle,$center));
     }
   }
+  return $rotate;
 }
 ################################################################################
 #
@@ -1140,17 +1141,18 @@ sub MovePolygon {
 #
 sub move {
   my ($self,$dx,$dy) = @_;
+  my $move =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(MovePolygon($pointsref,$dx,$dy));
+    $move->points(MovePolygon($pointsref,$dx,$dy));
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
-      $self->add_polygon(MovePolygon($_,$dx,$dy));
+      $move->add_polygons(MovePolygon($_,$dx,$dy));
     }
   }
+  return $move;
 }
 ################################################################################
 #
@@ -1185,17 +1187,18 @@ sub MirrorXPolygon {
 #    (vertical axis through point referenced by $center)
 sub mirrorx {
   my ($self,$dx,$dy) = @_;
+  my $mirrorx =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(MirrorXPolygon($pointsref,$dx,$dy));
+    $mirrorx->points(MirrorXPolygon($pointsref,$dx,$dy));
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
-      $self->add_polygons(MirrorXPolygon($_,$dx,$dy));
+      $mirrorx->add_polygons(MirrorXPolygon($_,$dx,$dy));
     }
   }
+  return $mirrorx;
 }
 ################################################################################
 #
@@ -1230,17 +1233,18 @@ sub MirrorYPolygon {
 #    (vertical axis through point referenced by $center)
 sub mirrory {
   my ($self,$dx,$dy) = @_;
+  my $mirrory =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(MirrorYPolygon($pointsref,$dx,$dy));
+    $mirrory->points(MirrorYPolygon($pointsref,$dx,$dy));
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
-      $self->add_polygons(MirrorYPolygon($_,$dx,$dy));
+      $mirrory->add_polygons(MirrorYPolygon($_,$dx,$dy));
     }
   }
+  return $mirrory;
 }
 ################################################################################
 #
@@ -1279,17 +1283,18 @@ sub MirrorPolygon {
 #
 sub mirror {
   my ($self,$axisref) = @_;
+  my $mirror =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(MirrorPolygon($pointsref,$axisref));
+    $mirror->points(MirrorPolygon($pointsref,$axisref));
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
-      $self->add_polygons(MirrorPolygon($_,$axisref));
+      $mirror->add_polygons(MirrorPolygon($_,$axisref));
     }
   }
+  return $mirror;
 }
 ################################################################################
 #
@@ -1327,18 +1332,19 @@ sub ScalePolygon {
 # I would choose the centroid ...
 #
 sub scale {
-  my ($self,$scale,$center) = @_;
+  my ($self,$factor,$center) = @_;
+  my $scale =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if ($pointsref) {
-    $self->points(ScalePolygon($pointsref,$scale,$center));
+    $scale->points(ScalePolygon($pointsref,$factor,$center));
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
-      $self->add_polygons(ScalePolygon($_,$scale,$center));
+      $scale->add_polygons(ScalePolygon($_,$factor,$center));
     }
   }
+  return $scale;
 }
 ################################################################################
 #
@@ -1350,6 +1356,7 @@ sub scale {
 #
 sub bbox {
   my ($self) = @_;
+  my $bbox =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if (! $pointsref) {
     $pointsref = ($self->get_polygons(0))[0];
@@ -1370,10 +1377,11 @@ sub bbox {
      $max_x = $points[$i][0] if ($points[$i][0] > $max_x);
      $max_y = $points[$i][1] if ($points[$i][1] > $max_y);
   }
-  return [[$min_x,$min_y],
-          [$min_x,$max_y],
-          [$max_x,$max_y],
-          [$max_x,$min_y]];
+  $bbox->points([[$min_x,$min_y],
+                 [$min_x,$max_y],
+                 [$max_x,$max_y],
+                 [$max_x,$min_y]]);
+  return $bbox;
 }
 ################################################################################
 #
@@ -1388,6 +1396,7 @@ sub bbox {
 #
 sub minrectangle {
   my ($self) = @_;
+  my $minrectangle =  Math::Geometry::Planar->new;
   my $pointsref = $self->points;
   if (! $pointsref) {
     $pointsref = ($self->get_polygons(0))[0];
@@ -1465,7 +1474,8 @@ sub minrectangle {
             $points[$j][1]+$points[$i-1][1]-$points[$i][1]];
   my $p3 = PerpendicularFoot([$points[$j],$p,$points[$l]]);
   my $p4 = PerpendicularFoot([$points[$j],$p,$points[$k]]);
-  return [$p1,$p2,$p3,$p4];
+  $minrectangle->points([$p1,$p2,$p3,$p4]);
+  return $minrectangle;
 }
 ################################################################################
 #
@@ -1477,14 +1487,22 @@ sub minrectangle {
 sub triangulate {
   my ($self) = @_;
   my $pointsref = $self->points;
+  my @triangles;
   if ($pointsref) {
-    return TriangulatePolygon([$pointsref]);
+    @triangles = @{TriangulatePolygon([$pointsref])};
   } else {
     my $polygonrefs = $self->polygons;
     if ($polygonrefs) {
-      return TriangulatePolygon($polygonrefs);
+      @triangles = @{TriangulatePolygon($polygonrefs)};
     }
   }
+  my @result;
+  foreach (@triangles) {
+    my $triangle =  Math::Geometry::Planar->new;
+    $triangle->points($_);
+    push @result,$triangle;
+  }
+  return @result;
 }
 ################################################################################
 #
@@ -1547,8 +1565,9 @@ sub convexhull {
   for (my $h = 0; $h <= ($top-$bot-1); $h++) {
     $returnval[$h] = $result[$bot + $h];
   }
-
-  return [(@returnval)];
+  my $hull =  Math::Geometry::Planar->new;
+  $hull->points([@returnval]);
+  return $hull;
 }
 ################################################################################
 #
@@ -1625,7 +1644,7 @@ sub convexhull2 {
 
   # Next, compute the upper hull on the stack H above the bottom hull
   if ($maxmax != $maxmin) {       # if distinct xmax points
-    push @hull,$points[$maxmax];  # push maxmax point onto stack
+    $hull[++$top] = $points[$maxmax];  # push maxmax point onto stack
   }
   $bot = $top;
   $i = $maxmin;
@@ -1647,7 +1666,9 @@ sub convexhull2 {
   if ($minmax == $minmin) {
     shift @hull;                   # remove joining endpoint from stack
   }
-  return [@hull];
+  my $hull =  Math::Geometry::Planar->new;
+  $hull->points([@hull]);
+  return $hull;
 }
 ################################################################################
 #
@@ -1852,7 +1873,9 @@ sub CircleToPoly {
     push @result, [${$center}[0] + $radius * cos($angle * $i),
                    ${$center}[1] + $radius * sin($angle * $i)]
   }
-  return [@result];
+  my $poly =  Math::Geometry::Planar->new;
+  $poly->points([@result]);
+  return $poly;
 }
 ################################################################################
 #
