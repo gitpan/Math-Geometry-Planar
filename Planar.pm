@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.04';
+$VERSION   = '1.05';
 $precision = 7;
 
 require Exporter;
@@ -23,7 +23,7 @@ require Exporter;
             /;
 
 use strict;
-use GPC;
+use Math::Geometry::GPC;
 use Carp;
 use POSIX;
 
@@ -1683,33 +1683,33 @@ sub convert2gpc {
       return;
     }
   }
-  my $contour = GPC::new_gpc_polygon();
-  GPC::gpc_polygon_num_contours_set($contour,scalar(@polygons));
+  my $contour = Math::Geometry::GPC::new_gpc_polygon();
+  Math::Geometry::GPC::gpc_polygon_num_contours_set($contour,scalar(@polygons));
   # array for hole pointers
-  my $hole_array = GPC::int_array(scalar(@polygons));
-  GPC::gpc_polygon_hole_set($contour,$hole_array);
-  my $vlist = GPC::new_gpc_vertex_list();
+  my $hole_array = Math::Geometry::GPC::int_array(scalar(@polygons));
+  Math::Geometry::GPC::gpc_polygon_hole_set($contour,$hole_array);
+  my $vlist = Math::Geometry::GPC::new_gpc_vertex_list();
   for (my $i = 0; $i < @polygons; $i++) {
     if ($i == 0) {
-      GPC::int_set($hole_array,$i,0);
+      Math::Geometry::GPC::int_set($hole_array,$i,0);
     } else {
-      GPC::int_set($hole_array,$i,1);
+      Math::Geometry::GPC::int_set($hole_array,$i,1);
     }
     my @points = @{$polygons[$i]};
     my @gpc_vertexlist;
     foreach my $vertex (@points) {
-      my $v = GPC::new_gpc_vertex();
-      GPC::gpc_vertex_x_set($v,$$vertex[0]);
-      GPC::gpc_vertex_y_set($v,$$vertex[1]);
+      my $v = Math::Geometry::GPC::new_gpc_vertex();
+      Math::Geometry::GPC::gpc_vertex_x_set($v,$$vertex[0]);
+      Math::Geometry::GPC::gpc_vertex_y_set($v,$$vertex[1]);
       push @gpc_vertexlist,$v;
     }
     my $va = create_gpc_vertex_array(@gpc_vertexlist);
-    my $vl = GPC::new_gpc_vertex_list();
-    GPC::gpc_vertex_list_vertex_set($vl,$va);
-    GPC::gpc_vertex_list_num_vertices_set($vl,scalar(@points));
-    GPC::gpc_vertex_list_set($vlist,$i,$vl);
+    my $vl = Math::Geometry::GPC::new_gpc_vertex_list();
+    Math::Geometry::GPC::gpc_vertex_list_vertex_set($vl,$va);
+    Math::Geometry::GPC::gpc_vertex_list_num_vertices_set($vl,scalar(@points));
+    Math::Geometry::GPC::gpc_vertex_list_set($vlist,$i,$vl);
   }
-  GPC::gpc_polygon_contour_set($contour,$vlist);
+  Math::Geometry::GPC::gpc_polygon_contour_set($contour,$vlist);
   return $contour;
 }
 ################################################################################
@@ -1722,22 +1722,22 @@ sub Gpc2Polygons {
   my @result; # array with contours
   my @inner;  # array holding the inner polygons
   my @outer;  # array holding the outer polygons
-  my $num_contours = GPC::gpc_polygon_num_contours_get($gpc);
-  my $contour      = GPC::gpc_polygon_contour_get($gpc);
-  my $hole_array   = GPC::gpc_polygon_hole_get($gpc);
+  my $num_contours = Math::Geometry::GPC::gpc_polygon_num_contours_get($gpc);
+  my $contour      = Math::Geometry::GPC::gpc_polygon_contour_get($gpc);
+  my $hole_array   = Math::Geometry::GPC::gpc_polygon_hole_get($gpc);
   # for each shape of the gpc object
   for (my $i = 0 ; $i < $num_contours ; $i++) {
     my @polygon;
     # get the hole flag
-    my $hole = GPC::int_get($hole_array,$i);
+    my $hole = Math::Geometry::GPC::int_get($hole_array,$i);
     # get the vertices
-    my $vl = GPC::gpc_vertex_list_get($contour,$i);
-    my $num_vertices = GPC::gpc_vertex_list_num_vertices_get($vl);
-    my $va = GPC::gpc_vertex_list_vertex_get($vl);
+    my $vl = Math::Geometry::GPC::gpc_vertex_list_get($contour,$i);
+    my $num_vertices = Math::Geometry::GPC::gpc_vertex_list_num_vertices_get($vl);
+    my $va = Math::Geometry::GPC::gpc_vertex_list_vertex_get($vl);
     for (my $j = 0 ; $j < $num_vertices ; $j++) {
-      my $v = GPC::gpc_vertex_get($va,$j);
-      my $x = GPC::gpc_vertex_x_get($v);
-      my $y = GPC::gpc_vertex_y_get($v);
+      my $v = Math::Geometry::GPC::gpc_vertex_get($va,$j);
+      my $x = Math::Geometry::GPC::gpc_vertex_x_get($v);
+      my $y = Math::Geometry::GPC::gpc_vertex_y_get($v);
       push @polygon,[$x,$y];
     }
     # create lists of inner and outer shapes
@@ -1780,22 +1780,22 @@ sub Gpc2Polygons {
 #
 sub GpcClip {
   my ($op,$gpc_poly_1,$gpc_poly_2) = @_;
-  my $result = GPC::new_gpc_polygon();
+  my $result = Math::Geometry::GPC::new_gpc_polygon();
   SWITCH: {
     ($op eq "DIFFERENCE") && do {
-      GPC::gpc_polygon_clip(0,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::GPC::gpc_polygon_clip(0,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "INTERSECTION") && do {
-      GPC::gpc_polygon_clip(1,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::GPC::gpc_polygon_clip(1,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "XOR") && do {
-      GPC::gpc_polygon_clip(2,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::GPC::gpc_polygon_clip(2,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     ($op eq "UNION") && do {
-      GPC::gpc_polygon_clip(3,$gpc_poly_1,$gpc_poly_2,$result);
+      Math::Geometry::GPC::gpc_polygon_clip(3,$gpc_poly_1,$gpc_poly_2,$result);
       return $result;
     };
     return;
@@ -1807,10 +1807,10 @@ sub GpcClip {
 #
 sub create_gpc_vertex_array {
   my $len = scalar(@_);
-  my $va = GPC::gpc_vertex_array($len);
+  my $va = Math::Geometry::GPC::gpc_vertex_array($len);
   for (my $i=0; $i<$len; $i++) {
     my $val = shift;
-    GPC::gpc_vertex_set($va,$i,$val);
+    Math::Geometry::GPC::gpc_vertex_set($va,$i,$val);
   }
   return $va;
 }
