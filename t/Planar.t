@@ -1,4 +1,3 @@
-#!/usr/bin/jperl
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
@@ -11,6 +10,7 @@
 use Math::Geometry::GPC;
 use Test;
 use strict;
+
 BEGIN {plan tests => 69};
 
 eval {require Math::Geometry::Planar; return 1};
@@ -431,10 +431,10 @@ $poly2 = [[2,2],[2,7],[3,7],[3,2]]; # hole 1
 my $poly3 = [[4,6],[4,7],[5,7],[5,6]]; # hole 2
 my $poly4 = [[4,2],[4,3],[5,3],[5,2]]; # hole 3
 $contour1->polygons([$poly1,$poly2,$poly3,$poly4]);
-$gpc_poly1 = Math::Geometry::Planar::convert2gpc($contour1);
+$gpc_poly1 = $contour1->convert2gpc;
 my $poly5 = [[0,4],[0,5],[7,5],[7,4]]; # outer
 $contour2->polygons([$poly5]);
-$gpc_poly2 = Math::Geometry::Planar::convert2gpc($contour2);
+$gpc_poly2 = $contour2->convert2gpc;
 $result = GpcClip("DIFFERENCE",$gpc_poly1,$gpc_poly2);
 @contours = Gpc2Polygons($result);
 $polygon_refs0 = $contours[0]->polygons;
@@ -619,4 +619,4 @@ abs (${$points[1]}[1] - 2.70710678118655) < 1e-07 &&
 abs (${$points[2]}[0] - 3) < 1e-07 &&
 abs (${$points[2]}[1] - 3) < 1e-07
 );
-
+END
