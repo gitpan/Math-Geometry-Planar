@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.09';
+$VERSION   = '1.10';
 $precision = 7;
 
 require Exporter;
@@ -925,12 +925,13 @@ sub PolygonArea {
     carp("Can't calculate area: polygon should have at least 3 points");
     return;
   }
+  push @points,$points[0];  # provide closure
   my $area = 0;
-  while(@points >= 3){
-    $area+=TriangleArea([$points[0],$points[1],$points[2]]);
-    splice @points,1,1;
+  while(@points >= 2){
+   $area += $points[0]->[0]*$points[1]->[1] - $points[1]->[0]*$points[0]->[1];
+   shift @points;
   }
-  return $area;
+  return $area/2.0;
 }
 ################################################################################
 # Calculates the area of a polygon or a contour

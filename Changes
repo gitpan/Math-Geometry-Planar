@@ -45,3 +45,8 @@ Revision history for Perl extension MAth::Geometry::Planar.
               special cases like the one in the tests ...)
             - typo in move made it work only for polygon objects and
               not for contour objects
+
+1.10  Fri May  9 09:30:00 2003
+	- Optimized PolygonArea for better performance
+          as suggested by C. David Tallman (thanks David)
+
