@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.12';
+$VERSION   = '1.13';
 
 use vars qw(
             $VERSION
@@ -36,7 +36,7 @@ require Exporter;
                 Perpendicular PerpendicularFoot
                 DistanceToLine DistanceToSegment
                 Gpc2Polygons GpcClip
-                CircleToPoly ArcToPoly
+                CircleToPoly ArcToPoly CalcAngle
                );
 @EXPORT_OK = qw($precision);
 
@@ -1053,7 +1053,6 @@ sub issimple {
     return IsSimplePolygon($pointsref);
   } else {
     my @polygonrefs = $self->get_polygons;
-    $self->{polygons} = ();
     my @result;
     foreach (@polygonrefs) {
       return 0 if (! IsSimplePolygon($_));
@@ -1291,7 +1290,7 @@ sub rotate {
   if ($pointsref) {
     $rotate->points(RotatePolygon($pointsref,$angle,$center));
   } else {
-    my @polygonrefs = $rotate->get_polygons;
+    my @polygonrefs = $self->get_polygons;
     my @result;
     foreach (@polygonrefs) {
       $rotate->add_polygons(RotatePolygon($_,$angle,$center));

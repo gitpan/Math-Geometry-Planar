@@ -59,3 +59,6 @@ Revision history for Perl extension MAth::Geometry::Planar.
 
 1.12  Fry Jun 15 11:07:00 2003
 	- Added tests for all intersections (ray/line/segment)
+
+1.13  Wed Jun 16 17:05:00 2004
+        - A few small fixes brought to my attention by Jurgen Pletinckx
