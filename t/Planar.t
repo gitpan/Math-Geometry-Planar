@@ -1,3 +1,5 @@
+#!/usr/bin/jperl
+
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -7,30 +9,31 @@
 # (It may become useful if the test is moved to ./t subdirectory.)
 
 use GPC;
-use Math::Geometry::Planar;
 use Test;
+use strict;
 BEGIN {plan tests => 69};
 
 eval {require Math::Geometry::Planar; return 1};
 ok ($@,'');
 croak() if $@;
+use Math::Geometry::Planar;
 
 ################################################################################
 # create contour object
-$contour = Math::Geometry::Planar->new;
+my $contour = Math::Geometry::Planar->new;
 ok ($contour);
 ################################################################################
 # add a polygon to the contour object
-$count = $contour->add_polygons([[1,1],[2,3],[3,4],[6,2]]);
+my $count = $contour->add_polygons([[1,1],[2,3],[3,4],[6,2]]);
 ok ($contour->num_polygons == 1 && $count == 1);
 ok ($contour->area == 7);
 $count = $contour->add_polygons([[2,2],[3,4],[4,5],[7,3]],[[3,3],[4,5],[5,6],[8,4]]);
 ok ($contour->num_polygons == 3 && $count == 3);
-@polygons = $contour->get_polygons(0,2);
+my @polygons = $contour->get_polygons(0,2);
 ok (@polygons == 2);
 ################################################################################
 # length of a vector
-$pointsref = [[1,1],[4,5]];
+my $pointsref = [[1,1],[4,5]];
 ok (SegmentLength($pointsref) == 5);
 ################################################################################
 # determinant x1,y1,x2,y2
@@ -61,7 +64,7 @@ ok (! Colinear($pointsref));
 $pointsref = [[1,1],[2,2],[3,0],[4,2]];
 ok (! SegmentIntersection($pointsref));
 $pointsref = [[1,1],[4,2],[0,3],[3,0]];
-@result = @{SegmentIntersection($pointsref)};
+my @result = @{SegmentIntersection($pointsref)};
 ok ($result[0] == 1.75 && $result[1] == 1.25);
 $pointsref = [[1,1],[4,2],[1,1],[3,0]];
 ok (! SegmentIntersection($pointsref));
@@ -97,17 +100,17 @@ $pointsref = [[1,1],[3,1],[6,5]];
 ok (DistanceToSegment($pointsref) == 5);
 ################################################################################
 # create polygon object
-$poly = Math::Geometry::Planar->new;
+my $poly = Math::Geometry::Planar->new;
 ok ($poly);
 ################################################################################
 # polygon cleanup
 $poly->points([[1,1],[5,1],[5,5],[5,3],[1,3]]);
 $pointsref = $poly->cleanup;
-@points = @{$pointsref};
+my @points = @{$pointsref};
 ok (@points == 4);
 $contour->polygons([[[1,1],[5,1],[5,5],[5,3],[1,3]]]);
-$polygonsref = $contour->cleanup;
-@polygonrefs = @{$polygonsref};
+my $polygonsref = $contour->cleanup;
+my @polygonrefs = @{$polygonsref};
 $pointsref = $polygonrefs[0];
 @points = @{$pointsref};
 ok (@points == 4);
@@ -131,7 +134,7 @@ ok (! $contour->issimple);
 # polygon perimeter
 $poly->points([[1,1],[4,5],[8,2],[5,-2]]);
 ok ($poly->perimeter == 20);
-$cont1 = Math::Geometry::Planar->new;
+my $cont1 = Math::Geometry::Planar->new;
 $cont1 ->add_polygons([[1,1],[4,5],[8,2],[5,-2]]);
 ok ($cont1->perimeter == 20);
 ok ($cont1->isconvex);
@@ -149,8 +152,8 @@ ok ($result[0] == 3 && $result[1] == 5);
 $poly->points([[1,1],[3,4],[2,3],[6,2]]);
 ok ($poly->isinside([2,2]));
 ok (! $poly->isinside([1,2]));
-$poly1 = [[1,0],[5,0],[5,5],[1,5]];
-$poly2 = [[3,1],[2,2],[3,3],[4,2]];
+my $poly1 = [[1,0],[5,0],[5,5],[1,5]];
+my $poly2 = [[3,1],[2,2],[3,3],[4,2]];
 $contour->polygons([$poly1,$poly2]);
 ok ($contour->isinside([2,3]));
 ok (! $contour->isinside([6,5]));
@@ -298,12 +301,12 @@ $poly1 = Math::Geometry::Planar->new;
 $poly2 = Math::Geometry::Planar->new;
 $poly1->points([[1,1],[1,3],[3,3],[3,1]]);
 $poly2->points([[2,2],[2,4],[4,4],[4,2]]);
-$gpc_poly1 = $poly1->convert2gpc([$poly1]);
-$gpc_poly2 = $poly2->convert2gpc([$poly2]);
-$result = GpcClip("DIFFERENCE",$gpc_poly1,$gpc_poly2);
-@contours = Gpc2Polygons($result);
-$polygon_refs = $contours[0]->polygons;
-$polygon_ref  = ${$polygon_refs}[0];
+my $gpc_poly1 = $poly1->convert2gpc([$poly1]);
+my $gpc_poly2 = $poly2->convert2gpc([$poly2]);
+my $result = GpcClip("DIFFERENCE",$gpc_poly1,$gpc_poly2);
+my @contours = Gpc2Polygons($result);
+my $polygon_refs = $contours[0]->polygons;
+my $polygon_ref  = ${$polygon_refs}[0];
 @points = @{$polygon_ref};
 ok (${$points[5]}[0] == 2 &&
     ${$points[5]}[1] == 2 &&
@@ -332,12 +335,12 @@ ok (${$points[3]}[0] == 3 &&
     ${$points[0]}[1] == 3 );
 $result = GpcClip("XOR",$gpc_poly1,$gpc_poly2);
 @contours = Gpc2Polygons($result);
-$polygon_refs0 = $contours[0]->polygons;
-$polygon_refs1 = $contours[1]->polygons;
-$polygon_ref0  = ${$polygon_refs0}[0];
-$polygon_ref1  = ${$polygon_refs1}[0];
-@points0 = @{$polygon_ref0};
-@points1 = @{$polygon_ref1};
+my $polygon_refs0 = $contours[0]->polygons;
+my $polygon_refs1 = $contours[1]->polygons;
+my $polygon_ref0  = ${$polygon_refs0}[0];
+my $polygon_ref1  = ${$polygon_refs1}[0];
+my @points0 = @{$polygon_ref0};
+my @points1 = @{$polygon_ref1};
 ok (${$points0[5]}[0] == 4 &&
     ${$points0[5]}[1] == 2 &&
     ${$points0[4]}[0] == 3 &&
@@ -387,7 +390,7 @@ ok (${$points[7]}[0] == 4 &&
 ################################################################################
 # A test: what happens if we and a non-simple polygon with itself ?
 $poly->points([[1,1],[1,3],[3,1],[3,3]]);
-$gpc_poly = $poly->convert2gpc;
+my $gpc_poly = $poly->convert2gpc;
 $result = GpcClip("UNION",$gpc_poly,$gpc_poly);
 @contours = Gpc2Polygons($result);
 $polygon_refs = $contours[0]->polygons;
@@ -412,38 +415,38 @@ ok (${$points[5]}[0] == 3 &&
 $poly1 = [[1,0],[5,0],[5,5],[1,5]];
 $poly2 = [[3,1],[2,2],[3,3],[4,2]];
 $contour->polygons([$poly1,$poly2]);
-$poly_ref = $contour->triangulate;
-@poly = @{$poly_ref};
+my $poly_ref = $contour->triangulate;
+my @poly = @{$poly_ref};
 ok (@poly == 8);
 
 ################################################################################
 # GPC clip creating a contour with multiple outer shapes
 # each having holes (comversion test)
 # create contour object
-$contour1 = Math::Geometry::Planar->new;
-$contour2 = Math::Geometry::Planar->new;
+my $contour1 = Math::Geometry::Planar->new;
+my $contour2 = Math::Geometry::Planar->new;
 # outer contour -> counter clock wise
 $poly1 = [[1,1],[6,1],[6,8],[1,8]]; # outer
 $poly2 = [[2,2],[2,7],[3,7],[3,2]]; # hole 1
-$poly3 = [[4,6],[4,7],[5,7],[5,6]]; # hole 2
-$poly4 = [[4,2],[4,3],[5,3],[5,2]]; # hole 3
+my $poly3 = [[4,6],[4,7],[5,7],[5,6]]; # hole 2
+my $poly4 = [[4,2],[4,3],[5,3],[5,2]]; # hole 3
 $contour1->polygons([$poly1,$poly2,$poly3,$poly4]);
 $gpc_poly1 = Math::Geometry::Planar::convert2gpc($contour1);
-$poly5 = [[0,4],[0,5],[7,5],[7,4]]; # outer
+my $poly5 = [[0,4],[0,5],[7,5],[7,4]]; # outer
 $contour2->polygons([$poly5]);
 $gpc_poly2 = Math::Geometry::Planar::convert2gpc($contour2);
 $result = GpcClip("DIFFERENCE",$gpc_poly1,$gpc_poly2);
 @contours = Gpc2Polygons($result);
 $polygon_refs0 = $contours[0]->polygons;
 $polygon_refs1 = $contours[1]->polygons;
-$polygon_ref00 = ${$polygon_refs0}[0];
-$polygon_ref01 = ${$polygon_refs0}[1];
-$polygon_ref10 = ${$polygon_refs1}[0];
-$polygon_ref11 = ${$polygon_refs1}[1];
-@points00 = @{$polygon_ref00};
-@points01 = @{$polygon_ref01};
-@points10 = @{$polygon_ref10};
-@points11 = @{$polygon_ref11};
+my $polygon_ref00 = ${$polygon_refs0}[0];
+my $polygon_ref01 = ${$polygon_refs0}[1];
+my $polygon_ref10 = ${$polygon_refs1}[0];
+my $polygon_ref11 = ${$polygon_refs1}[1];
+my @points00 = @{$polygon_ref00};
+my @points01 = @{$polygon_ref01};
+my @points10 = @{$polygon_ref10};
+my @points11 = @{$polygon_ref11};
 ok (${$points00[7]}[0] == 6 &&
     ${$points00[7]}[1] == 5 &&
     ${$points00[6]}[0] == 3 &&
@@ -495,8 +498,8 @@ ok (${$points00[7]}[0] == 6 &&
 
 ################################################################################
 # convert circle defined by 3 points
-my $poly = CircleToPoly(8,[2,2],[3,3],[4,2]);
-my @points = @{$poly};
+$poly = CircleToPoly(8,[2,2],[3,3],[4,2]);
+@points = @{$poly};
 ok (
 abs (${$points[0]}[0] - 4) < 1e-07 &&
 abs (${$points[0]}[1] - 2) < 1e-07 &&

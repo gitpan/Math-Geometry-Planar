@@ -10,7 +10,13 @@ Revision history for Perl extension MAth::Geometry::Planar.
 	- Include the triangulation code (which was a separate
           .pl file) into the module code
 
-1.03  Mon Oct  1 09:30:15 2002
+1.03  Tue Oct  1 09:30:15 2002
 	- Corrected some typos in POD
         - Added some initialization statements to overcome
           'Use of uninitialized value' warnings during tests
+
+1.04  Tue Oct  1 14:18:05 2002
+	- Corrected some typos in POD
+        - Different approach for running tests - trying
+          to get rid of 'dubious' thing for linux 2.4.16-6mdksmp i386-linux
+          (although there is not a 'real' problem afaik)

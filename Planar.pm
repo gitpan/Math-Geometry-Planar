@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.03';
+$VERSION   = '1.04';
 $precision = 7;
 
 require Exporter;
@@ -31,7 +31,7 @@ use POSIX;
 
 =head1 NAME
 
-Math::Geometry::Planar - Module with planar geometry functions
+Math::Geometry::Planar - A collection of planar geometry functions
 
 =head1 SYNOPSIS
 
@@ -49,12 +49,6 @@ A polygon is a reference to an (ordered) array of points.  The first point is th
 begin and end point of the polygon. The points can be given in any direction
 (clockwise or counter clockwise).
 
- $points = [[$x1,$y1],[$x2,$y2], ... ];
- $polygon->points($points);                    # assign points to polygon object
- $points1 = [[$x1,$y1],[$x2,$y2], ... ];
- $points2 = [[ax1,by1],[ax2,by2], ... ];
- $contour->polygons([$points1,$points2, ...]); # assign polgyons to contour object
-
 A contour is a reference to an array of polygons.  By convention, the first polygon
 is the outer shape, all other polygons represent holes in the outer shape.  The outer
 shape must enclose all holes !
@@ -66,7 +60,11 @@ right order of points.
 No points can be assigned to an object that already has polygons assigned to and
 vice versa.
 
- $contour = [$poly1,$poly2], ... ];
+ $points = [[$x1,$y1],[$x2,$y2], ... ];
+ $polygon->points($points);                    # assign points to polygon object
+ $points1 = [[$x1,$y1],[$x2,$y2], ... ];
+ $points2 = [[ax1,by1],[ax2,by2], ... ];
+ $contour->polygons([$points1,$points2, ...]); # assign polgyons to contour object
 
 =head1 METHODS
 
@@ -95,10 +93,10 @@ shape).  Returns the total number of polygons in the contour.
 =head4 $contour->get_polygons(arg_1,arg_2, ... );
 
 Returns a list of polygons where each element of the list corresponds to the polygon
-at index arg_x - starting at 0.  If the index arg_x is out of range, the corresponding
-value in the result list wil be undefined.  If no argument is entered, a full list of
-all polygons will be returned. Please note that this method returns a list rather
-then a reference.
+at index arg_x - starting at 0, the outer shape. If the index arg_x is out of range,
+the corresponding value in the result list wil be undefined.  If no argument is
+entered, a full list of all polygons is returned. Please note that this method returns
+a list rather then a reference.
 
 =head4 $polygon->cleanup;
 
@@ -123,7 +121,7 @@ of the outer shape.
 
 Returns the signed area of the polygon/contour (positive if the points are in counter
 clockwise order). The area of a contour is the area of the outer shape minus the sum
-of the area area of the holes.
+of the area of the holes.
 
 =head4 $polygon->centroid;
 
@@ -147,13 +145,13 @@ Returns polygon/contour moved $dx in x direction and $dy in y direction.
 
 Returns polygon/contour mirrored in x direction
 with (vertical) axis of reflection through point $center.
-If no center is entered, axis is Y-axis.
+If no center is entered, axis is the Y-axis.
 
 =head4 $polygon->mirrory($center);
 
 Returns polygon/contour mirrored in y direction
 with (horizontal) axis of reflection through point $center.
-If no center is entered, axis is X-axis.
+If no center is entered, axis is the X-axis.
 
 =head4 $polygon->mirror($axos);
 
@@ -3743,7 +3741,5 @@ sub _triangulate_single_polygon {
   $ri--;
 
 }
-
-1;
 
 1;

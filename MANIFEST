@@ -3,5 +3,4 @@ Changes
 Planar.pm
 MANIFEST
 Makefile.PL
-test.pl
-Planar.t
+t/Planar.t
