@@ -61,4 +61,7 @@ Revision history for Perl extension MAth::Geometry::Planar.
 	- Added tests for all intersections (ray/line/segment)
 
 1.13  Wed Jun 16 17:05:00 2004
-        - A few small fixes brought to my attention by Jurgen Pletinckx
+
+1.14  Fry Jun 18 12:14:00 2004
+        - Fixed bug in GPC2polygons function reported by C. Pettir
+          ticket 6250

@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.13';
+$VERSION   = '1.14';
 
 use vars qw(
             $VERSION
@@ -1985,8 +1985,9 @@ sub Gpc2Polygons {
         if ($obj->isinside($polygon[0])) {
           $obj->add_polygons($inner[$i]);
           splice @inner,$i,1;
+        } else {
+          $i++;
         }
-        $i++;
       }
     }
   }
