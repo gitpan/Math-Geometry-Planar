@@ -1,0 +1,8 @@
+Revision history for Perl extension MAth::Geometry::Planar.
+
+1.00  Fri Sep   6 14:36:09 2002
+	- First relesaseon
+
+1.01  Fri Sep  27 12:40:17 2002
+	- Changed Math::Geometry_2D to Math::Geometry::Planar
+
