@@ -24,3 +24,6 @@ Revision history for Perl extension MAth::Geometry::Planar.
 1.05  Sun Oct  6 14:16:47 2002
 	- Adapted module to registered namespace for GPC
           (Math::Geometry::GPC)
+
+1.06  Mon Oct  7 09:50:12 2002
+	- Small change in Makefile.PL for correct GPC version in PREREQ_PM
