@@ -7,13 +7,12 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-use Math::Geometry::GPC;
 use Test;
 use strict;
 
 BEGIN {plan tests => 69};
 
-eval {require Math::Geometry::Planar; return 1};
+eval {require Math::Geometry::Planar};
 ok ($@,'');
 croak() if $@;
 use Math::Geometry::Planar;
@@ -619,4 +618,3 @@ abs (${$points[1]}[1] - 2.70710678118655) < 1e-07 &&
 abs (${$points[2]}[0] - 3) < 1e-07 &&
 abs (${$points[2]}[1] - 3) < 1e-07
 );
-END

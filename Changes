@@ -30,3 +30,7 @@ Revision history for Perl extension MAth::Geometry::Planar.
 
 1.07  Mon Oct  7 14:10:02 2002
 	- Small change in tests
+
+1.08  Mon Oct  7 14:12:02 2002
+	- another attempt to fix linux 2.4.16-6mdksmp i386-linux test
+          (nothing is - imho - wrong though ...)

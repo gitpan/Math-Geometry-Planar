@@ -8,7 +8,7 @@
 package Math::Geometry::Planar;
 
 use vars qw($VERSION $precision);
-$VERSION   = '1.07';
+$VERSION   = '1.08';
 $precision = 7;
 
 require Exporter;
