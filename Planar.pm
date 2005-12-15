@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.14';
+$VERSION   = '1.15';
 
 use vars qw(
             $VERSION
@@ -1210,14 +1210,14 @@ sub IsInsidePolygon {
   for (my $i = 0 ; $i < @points ; $i++) {
     if ($points[$i-1][1] <= $point[1]) { # start y <= P.y
       if ($points[$i][1] > $point[1]) {  # // an upward crossing
-        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) > 0) {
+        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) >= 0) {
           # point left of edge
           $wn++;                         # have a valid up intersect
         }
       }
     } else {                             # start y > P.y (no test needed)
       if ($points[$i][1] <= $point[1]) { # a downward crossing
-        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) < 0) {
+        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) <= 0) {
           # point right of edge
           $wn--;                         # have a valid down intersect
         }
