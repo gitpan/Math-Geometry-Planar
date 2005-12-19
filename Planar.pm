@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.15';
+$VERSION   = '1.16';
 
 use vars qw(
             $VERSION
@@ -1208,16 +1208,34 @@ sub IsInsidePolygon {
   my @point = @$pointref;
   my $wn;  # thw winding number counter
   for (my $i = 0 ; $i < @points ; $i++) {
+    my $cp = CrossProduct([$points[$i-1],$points[$i],$pointref]);
+    # if colinear and in between the 2 points of the polygon
+    # segment, it's on the perimeter and considered inside
+    if ($cp == 0) {
+      if (
+          ((($points[$i-1][0] <= $point[0] &&
+             $point[0] <= $points[$i][0])) ||
+           (($points[$i-1][0] >= $point[0] &&
+             $point[0] >= $points[$i][0])))
+          &&
+          ((($points[$i-1][1] <= $$pointref[1] &&
+             $point[1] <= $points[$i][1])) ||
+           (($points[$i-1][1] >= $point[1] &&
+             $point[1] >= $points[$i][1])))
+         ) {
+         return 1;
+       }
+    }
     if ($points[$i-1][1] <= $point[1]) { # start y <= P.y
       if ($points[$i][1] > $point[1]) {  # // an upward crossing
-        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) >= 0) {
+        if ($cp > 0) {
           # point left of edge
           $wn++;                         # have a valid up intersect
         }
       }
     } else {                             # start y > P.y (no test needed)
       if ($points[$i][1] <= $point[1]) { # a downward crossing
-        if (CrossProduct([$points[$i-1],$points[$i],$pointref]) <= 0) {
+        if ($cp < 0) {
           # point right of edge
           $wn--;                         # have a valid down intersect
         }

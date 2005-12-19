@@ -70,3 +70,7 @@ Revision history for Perl extension MAth::Geometry::Planar.
         - Fixed bug in inside function reported by Sharaba Avshalom
           inconsistent results for when point tested is colinear
           with an edge of the polygon.
+
+1.16  Mon Dec 19 16:10:00 2005
+        - Finally got the inside function right
+          Points on the perimeter evaluate as being inside
