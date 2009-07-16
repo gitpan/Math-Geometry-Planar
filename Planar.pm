@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.16';
+$VERSION   = '1.17';
 
 use vars qw(
             $VERSION
@@ -1842,7 +1842,7 @@ sub convexhull2 {
     $hull[++$top] = $points[$i]; # push points[i] onto stack
   }
 
-  # Next, compute the upper hull on the stack H above the bottom hull
+  # Next, compute the upper hull on the stack above the bottom hull
   if ($maxmax != $maxmin) {       # if distinct xmax points
     $hull[++$top] = $points[$maxmax];  # push maxmax point onto stack
   }
@@ -1863,6 +1863,7 @@ sub convexhull2 {
     }
     $hull[++$top] = $points[$i];   # push points[i] onto stack
   }
+  $#hull = $top;
   if ($minmax == $minmin) {
     shift @hull;                   # remove joining endpoint from stack
   }

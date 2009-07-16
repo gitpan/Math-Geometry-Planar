@@ -74,3 +74,8 @@ Revision history for Perl extension MAth::Geometry::Planar.
 1.16  Mon Dec 19 16:10:00 2005
         - Finally got the inside function right
           Points on the perimeter evaluate as being inside
+
+1.17  Thu Jul 16 12:05:00 2009
+        - Bug reported by T. Fawcet
+          convexhull2 method returns too many points in some
+	  cases
