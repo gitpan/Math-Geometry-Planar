@@ -79,3 +79,7 @@ Revision history for Perl extension MAth::Geometry::Planar.
         - Bug reported by T. Fawcet
           convexhull2 method returns too many points in some
 	  cases
+
+1.18  Thu Mar 10 17:27:00 2011
+        - Bug reported by M. Henning
+          Intermittent segfaults

@@ -7,7 +7,7 @@
 
 package Math::Geometry::Planar;
 
-$VERSION   = '1.17';
+$VERSION   = '1.18';
 
 use vars qw(
             $VERSION
@@ -1925,7 +1925,7 @@ sub convert2gpc {
   # array for hole pointers
   my $hole_array = Math::Geometry::Planar::GPC::int_array(scalar(@polygons));
   Math::Geometry::Planar::GPC::gpc_polygon_hole_set($contour,$hole_array);
-  my $vlist = Math::Geometry::Planar::GPC::new_gpc_vertex_list();
+  my $vlist = Math::Geometry::Planar::GPC::gpc_vertex_list_array(scalar(@polygons));
   for (my $i = 0; $i < @polygons; $i++) {
     if ($i == 0) {
       Math::Geometry::Planar::GPC::int_set($hole_array,$i,0);
